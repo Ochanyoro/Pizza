@@ -13,6 +13,7 @@
 		82963B372894211F00A8049B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 82963B362894211F00A8049B /* Preview Assets.xcassets */; };
 		82963B402894224100A8049B /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82963B3F2894224100A8049B /* Home.swift */; };
 		82963B42289424E700A8049B /* Pizza.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82963B41289424E700A8049B /* Pizza.swift */; };
+		82963B442894392200A8049B /* Topping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82963B432894392200A8049B /* Topping.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		82963B362894211F00A8049B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		82963B3F2894224100A8049B /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		82963B41289424E700A8049B /* Pizza.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pizza.swift; sourceTree = "<group>"; };
+		82963B432894392200A8049B /* Topping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Topping.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				82963B41289424E700A8049B /* Pizza.swift */,
+				82963B432894392200A8049B /* Topping.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -162,6 +165,7 @@
 				82963B42289424E700A8049B /* Pizza.swift in Sources */,
 				82963B322894211E00A8049B /* ContentView.swift in Sources */,
 				82963B402894224100A8049B /* Home.swift in Sources */,
+				82963B442894392200A8049B /* Topping.swift in Sources */,
 				82963B302894211E00A8049B /* PizzaApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

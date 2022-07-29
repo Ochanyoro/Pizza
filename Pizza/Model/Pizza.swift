@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct Pizza: Identifiable, Hashable {
+struct Pizza: Identifiable {
     var id = UUID().uuidString
     var breadName: String
+    var toppings: [Topping] = []
 }

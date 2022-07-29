@@ -20,7 +20,7 @@ struct Home: View {
         
     ]
     
-    @State var currentPizza: Pizza = .init(breadName: "Bread_1")
+    @State var currentPizza: String = "Bread_1"
     @State var currentSize: PizzaSize = .medium
     
     // smoothなエフェクトをかける
@@ -66,7 +66,7 @@ struct Home: View {
             // Pizza View
             GeometryReader { proxy in
                 
-                let _ = proxy.size
+                let size = proxy.size
                 
                 ZStack {
                     
@@ -86,9 +86,13 @@ struct Home: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .padding(40)
+                                
+                                // ToppingsView
+                                ToppingsView(toppings: pizza.toppings, pizza: pizza, width: (size.width / 2) - 45)
                             }
                             // ピザのサイズを変更する
                             .scaleEffect(currentSize == .large ? 1 : (currentSize == .medium ? 0.95 : 0.9))
+                            .tag(pizza.breadName)
                         }
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
@@ -150,30 +154,60 @@ struct Home: View {
                 .padding(.top, 25)
                 .padding(.leading)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: -10){
-                    ForEach(toppings, id: \.self) { topping in
-                        // トッピング画像の表示
-                        // それぞれのトッピングに１０枚ずつある
-                        Image("\(topping)_3")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 40, height: 40)
-                            .padding(12)
-                            .background(
-                                
-                                Color.green
-                                    .clipShape(Circle())
-                                    .opacity(0.15)
-                            )
-                            .padding()
-                            .contentShape(Circle())
-                            .onTapGesture {
-                                // トッピングを加える
-                            }
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: -10){
+                        ForEach(toppings, id: \.self) { topping in
+                            // トッピング画像の表示
+                            // それぞれのトッピングに１０枚ずつある
+                            Image("\(topping)_3")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 40, height: 40)
+                                .padding(12)
+                                .background(
+                                    
+                                    Color.green
+                                        .clipShape(Circle())
+                                        .opacity(isAdded(topping: topping) ? 0.15 : 0)
+                                        .animation(.easeInOut, value: currentPizza)
+                                )
+                                .padding()
+                                .contentShape(Circle())
+                                .onTapGesture {
+                                    // MARK: Adding/Removing Toppings
+                                    if isAdded(topping: topping){
+                                        if let index = pizzas[getIndex(breadName: currentPizza)].toppings.firstIndex(where: { currentTopping in
+                                            return topping == currentTopping.toppingName
+                                        }){
+                                            pizzas[getIndex(breadName: currentPizza)].toppings.remove(at: index)
+                                        }
+                                        
+                                        return
+                                    }
+                                    
+                                    // MARK: Creating Some Random Positions
+                                    var positions: [CGSize] = []
+                                    
+                                    for _ in 1...20{
+                                        positions.append(.init(width: .random(in: -20...60), height: .random(in: -45...45)))
+                                    }
+                                    
+                                    let toppingObject = Topping(toppingName: topping, randomToppingPositions: positions)
+                                    withAnimation{
+                                        pizzas[getIndex(breadName: currentPizza)].toppings.append(toppingObject)
+                                    }
+                                }
+                                .tag(topping)
+                        }
+                    }
+                    
+                }
+                .onChange(of: currentPizza) { _ in
+                    withAnimation {
+                        proxy.scrollTo(toppings.first ?? "", anchor: .leading)
                     }
                 }
-                
             }
             
             // カートに加える
@@ -197,6 +231,63 @@ struct Home: View {
             
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+    
+    func isAdded(topping: String)->Bool{
+        let status = pizzas[getIndex(breadName: currentPizza)].toppings.contains { currentTopping in
+            return currentTopping.toppingName == topping
+        }
+        
+        return status
+    }
+    
+    // MARK: Finding Index
+    func getIndex(breadName: String)->Int{
+        let index = pizzas.firstIndex { pizza in
+            return pizza.breadName == breadName
+        } ?? 0
+        
+        return index
+    }
+    
+    
+    @ViewBuilder
+    func ToppingsView(toppings: [Topping],pizza: Pizza,width: CGFloat)->some View{
+        Group{
+            ForEach(toppings.indices,id: \.self){index in
+                // Each topping consists of 10 topping images....
+                let topping = toppings[index]
+                
+                ZStack{
+                    // Adding more Topping Images...
+                    // with an illusion...
+                    ForEach(1...20,id: \.self){subIndex in
+                        // 360/10 = 36....
+                        let rotation: Double = Double(subIndex) * 36
+                        let crtIndex = (subIndex > 10 ? (subIndex - 10) : subIndex)
+                        
+                        Image("\(topping.toppingName)_\(crtIndex)")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 35, height: 35)
+                        // Since index starts from 0...
+                            .offset(x: (width / 2) - topping.randomToppingPositions[subIndex - 1].width,y: topping.randomToppingPositions[subIndex - 1].height)
+                            .rotationEffect(.init(degrees: rotation))
+                        // Spreading Topping into random positions in 360 rotation...
+                    }
+                }
+                // Adding Scaling Animation...
+                // Triggering Scaling animation when the topping is added...
+                .scaleEffect(topping.isAdded ? 1 : 10,anchor: .center)
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+                        withAnimation{
+                            pizzas[getIndex(breadName: pizza.breadName)].toppings[index].isAdded = true
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
